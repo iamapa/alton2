@@ -50,12 +50,10 @@
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
             font-size: 14px;
         }
         .btn-reset:hover {
             background: #c0392b;
-            transform: scale(1.02);
         }
         .btn-add {
             background: #2ecc71;
@@ -65,12 +63,10 @@
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
             font-size: 14px;
         }
         .btn-add:hover {
             background: #27ae60;
-            transform: scale(1.02);
         }
         .btn-add.orange {
             background: #f39c12;
@@ -186,11 +182,6 @@
             border-radius: 12px;
             font-size: 15px;
             margin-top: 4px;
-            transition: 0.2s;
-        }
-        .modal input:focus, .modal select:focus {
-            border-color: #3498db;
-            outline: none;
         }
         .modal .row-2 {
             display: grid;
@@ -208,7 +199,6 @@
             border-radius: 14px;
             margin-top: 20px;
             cursor: pointer;
-            transition: 0.2s;
         }
         .modal .btn-submit:hover {
             background: #27ae60;
@@ -399,13 +389,26 @@
 </div>
 
 <script>
+console.log('🚀 Script dimulai...');
+
 // ============================================================
 //  KONFIGURASI SUPABASE
 // ============================================================
 const SUPABASE_URL = 'https://tmxlmimwoysdkrvkpktv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRteGxtaW13b3lzZGtydmtwa3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MDYxODMsImV4cCI6MjEwNDM4MjE4M30.K5x9vadD9VWk4Pm9GvYMxagi1WVepTrF4l_V-Q3-eOQ';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+console.log('🔑 URL:', SUPABASE_URL);
+console.log('🔑 Key:', SUPABASE_ANON_KEY.substring(0, 20) + '...');
+
+// Inisialisasi Supabase
+let supabase;
+try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('✅ Supabase client berhasil dibuat');
+} catch (err) {
+    console.error('❌ Gagal buat Supabase client:', err);
+    alert('Error: Gagal konek ke Supabase. Cek koneksi internet!');
+}
 
 // ============================================================
 //  VARIABEL
@@ -424,23 +427,32 @@ let expenseData = [];
 // ============================================================
 
 async function loadData() {
+    console.log('📥 Memuat data...');
+    
+    if (!supabase) {
+        alert('❌ Supabase tidak siap. Refresh halaman!');
+        return;
+    }
+    
     try {
-        const [incomeRes, expenseRes] = await Promise.all([
-            supabase.from('income').select('*').order('created_at', { ascending: false }),
-            supabase.from('expenses').select('*').order('created_at', { ascending: false })
-        ]);
+        console.log('📥 Ambil data income...');
+        const incomeRes = await supabase.from('income').select('*').order('created_at', { ascending: false });
+        
+        console.log('📥 Ambil data expenses...');
+        const expenseRes = await supabase.from('expenses').select('*').order('created_at', { ascending: false });
 
         if (incomeRes.error) {
-            console.error('Income error:', incomeRes.error);
-            throw incomeRes.error;
+            console.error('❌ Income error:', incomeRes.error);
+            throw new Error('Income: ' + incomeRes.error.message);
         }
         if (expenseRes.error) {
-            console.error('Expense error:', expenseRes.error);
-            throw expenseRes.error;
+            console.error('❌ Expense error:', expenseRes.error);
+            throw new Error('Expense: ' + expenseRes.error.message);
         }
 
         incomeData = incomeRes.data || [];
         expenseData = expenseRes.data || [];
+        console.log('✅ Income:', incomeData.length, 'Expense:', expenseData.length);
 
         // Gabungkan untuk tabel
         const combined = [];
@@ -476,10 +488,13 @@ async function loadData() {
 
         allTransactions = combined;
         renderAll();
+        console.log('✅ Data selesai dimuat!');
+        
     } catch (err) {
-        console.error('Load data error:', err);
+        console.error('❌ Load data error:', err);
         document.getElementById('transactionTable').innerHTML = 
             '<tr><td colspan="6" style="text-align:center;color:#e74c3c;padding:30px;">❌ Gagal memuat data: ' + err.message + '</td></tr>';
+        alert('❌ Gagal memuat data: ' + err.message + '\n\nCek koneksi internet dan pastikan Supabase aktif!');
     }
 }
 
@@ -589,6 +604,7 @@ function formatRupiah(num) {
 //  MODAL
 // ============================================================
 function openModal(type) {
+    console.log('📂 Open modal:', type);
     document.getElementById('modalOverlay').classList.add('active');
     document.getElementById('formType').value = type;
 
@@ -621,6 +637,8 @@ function closeModal() {
 // ============================================================
 async function submitForm(e) {
     e.preventDefault();
+    console.log('📤 Submit form...');
+    
     const type = document.getElementById('formType').value;
     const unit = document.getElementById('fUnit').value;
 
@@ -647,6 +665,8 @@ async function submitForm(e) {
                 return;
             }
 
+            console.log('📤 Insert income:', { unit, guest, amount, checkIn, checkOut, durasi });
+            
             const { error } = await supabase.from('income').insert({
                 unit_name: unit,
                 guest_name: guest,
@@ -674,6 +694,8 @@ async function submitForm(e) {
                 return;
             }
 
+            console.log('📤 Insert expense:', { unit, desc, amount, date });
+            
             const { error } = await supabase.from('expenses').insert({
                 unit_name: unit,
                 description: desc,
@@ -688,8 +710,8 @@ async function submitForm(e) {
         closeModal();
         loadData();
     } catch (err) {
+        console.error('❌ Submit error:', err);
         alert('❌ Gagal menyimpan: ' + err.message);
-        console.error(err);
     }
 }
 
@@ -697,6 +719,7 @@ async function submitForm(e) {
 //  RESET
 // ============================================================
 async function resetAll() {
+    console.log('🔄 Reset data...');
     if (!confirm('⚠️ Yakin mau menghapus SEMUA data? Ini tidak bisa dibatalkan!')) return;
     if (!confirm('Benar-benar yakin? Semua transaksi akan hilang!')) return;
 
@@ -709,21 +732,31 @@ async function resetAll() {
         alert('✅ Semua data berhasil direset!');
         loadData();
     } catch (err) {
+        console.error('❌ Reset error:', err);
         alert('❌ Gagal reset: ' + err.message);
-        console.error(err);
     }
 }
 
 // ============================================================
-//  JALANKAN
+//  JALANKAN - PASTIKAN SEMUA FUNGSI TERDEFINISI
 // ============================================================
+console.log('📋 Mengecek fungsi...');
+console.log('✅ openModal:', typeof openModal === 'function');
+console.log('✅ submitForm:', typeof submitForm === 'function');
+console.log('✅ resetAll:', typeof resetAll === 'function');
+console.log('✅ loadData:', typeof loadData === 'function');
+
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('📄 DOM siap, memuat data...');
     loadData();
 });
 
+// Tutup modal jika klik di luar
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
 });
+
+console.log('✅ Script selesai di-load!');
 </script>
 </body>
 </html>
