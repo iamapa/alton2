@@ -4,287 +4,57 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>MAYORA - Manajemen Penginapan</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-        body {
-            background: #f0f2f5;
-            padding: 16px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .header {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: white;
-            padding: 20px 24px;
-            border-radius: 20px;
-            margin-bottom: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .header h1 {
-            font-size: 28px;
-            letter-spacing: 2px;
-        }
-        .header h1 span {
-            color: #f5c842;
-        }
-        .header-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .btn-reset {
-            background: #e74c3c;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn-reset:hover {
-            background: #c0392b;
-        }
-        .btn-add {
-            background: #2ecc71;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn-add:hover {
-            background: #27ae60;
-        }
-        .btn-add.orange {
-            background: #f39c12;
-        }
-        .btn-add.orange:hover {
-            background: #d68910;
-        }
-
-        .rekap-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .rekap-card {
-            background: white;
-            padding: 18px 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            text-align: center;
-        }
-        .rekap-card .label {
-            font-size: 13px;
-            color: #7f8c8d;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .rekap-card .value {
-            font-size: 26px;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-        .rekap-card .value.green {
-            color: #27ae60;
-        }
-        .rekap-card .value.red {
-            color: #e74c3c;
-        }
-        .rekap-card .sub {
-            font-size: 13px;
-            color: #95a5a6;
-            margin-top: 2px;
-        }
-
-        .unit-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .unit-card {
-            background: white;
-            padding: 16px 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            border-left: 5px solid #3498db;
-        }
-        .unit-card .unit-name {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .unit-card .unit-detail {
-            font-size: 14px;
-            color: #555;
-            margin-top: 4px;
-        }
-        .unit-card .unit-status {
-            margin-top: 8px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
-        }
-        .modal-overlay.active {
-            display: flex;
-        }
-        .modal {
-            background: white;
-            border-radius: 24px;
-            padding: 28px 24px;
-            max-width: 520px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        .modal h2 {
-            margin-bottom: 20px;
-            font-size: 22px;
-        }
-        .modal label {
-            display: block;
-            font-weight: 600;
-            font-size: 14px;
-            margin-top: 12px;
-            color: #2c3e50;
-        }
-        .modal input, .modal select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            font-size: 15px;
-            margin-top: 4px;
-        }
-        .modal .row-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .modal .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: #2ecc71;
-            border: none;
-            color: white;
-            font-weight: 700;
-            font-size: 16px;
-            border-radius: 14px;
-            margin-top: 20px;
-            cursor: pointer;
-        }
-        .modal .btn-submit:hover {
-            background: #27ae60;
-        }
-        .modal .btn-close {
-            background: #e74c3c;
-            border: none;
-            color: white;
-            padding: 10px;
-            border-radius: 12px;
-            width: 100%;
-            margin-top: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .modal .btn-close:hover {
-            background: #c0392b;
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 16px;
-            padding: 16px 0 4px 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            overflow-x: auto;
-            margin-top: 16px;
-        }
-        .table-container h3 {
-            padding: 0 20px 12px 20px;
-            font-size: 18px;
-            color: #2c3e50;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-            min-width: 700px;
-        }
-        th {
-            background: #f8f9fa;
-            text-align: left;
-            padding: 12px 16px;
-            font-weight: 600;
-            color: #2c3e50;
-            border-bottom: 2px solid #eee;
-        }
-        td {
-            padding: 10px 16px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        tr:hover td {
-            background: #fafbfc;
-        }
-        .badge-income {
-            background: #d5f5e3;
-            color: #1a7a42;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 11px;
-        }
-        .badge-expense {
-            background: #fadbd8;
-            color: #922b21;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 11px;
-        }
-        .loading-text {
-            text-align: center;
-            color: #999;
-            padding: 30px;
-        }
-
-        @media (max-width: 600px) {
-            .header h1 { font-size: 22px; }
-            .rekap-grid { grid-template-columns: 1fr 1fr; }
-            .unit-summary { grid-template-columns: 1fr; }
-            .modal { padding: 20px 16px; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: #f0f2f5; padding: 16px; max-width: 1400px; margin: 0 auto; }
+        .header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; padding: 20px 24px; border-radius: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .header h1 { font-size: 28px; letter-spacing: 2px; }
+        .header h1 span { color: #f5c842; }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-reset { background: #e74c3c; border: none; color: white; padding: 10px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .btn-reset:hover { background: #c0392b; }
+        .btn-add { background: #2ecc71; border: none; color: white; padding: 10px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .btn-add:hover { background: #27ae60; }
+        .btn-add.orange { background: #f39c12; }
+        .btn-add.orange:hover { background: #d68910; }
+        .rekap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .rekap-card { background: white; padding: 18px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); text-align: center; }
+        .rekap-card .label { font-size: 13px; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .rekap-card .value { font-size: 26px; font-weight: 700; margin-top: 4px; }
+        .rekap-card .value.green { color: #27ae60; }
+        .rekap-card .value.red { color: #e74c3c; }
+        .rekap-card .sub { font-size: 13px; color: #95a5a6; margin-top: 2px; }
+        .unit-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .unit-card { background: white; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border-left: 5px solid #3498db; }
+        .unit-card .unit-name { font-size: 20px; font-weight: 700; }
+        .unit-card .unit-detail { font-size: 14px; color: #555; margin-top: 4px; }
+        .unit-card .unit-status { margin-top: 8px; font-weight: 600; font-size: 14px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 999; justify-content: center; align-items: center; padding: 16px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 24px; padding: 28px 24px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal h2 { margin-bottom: 20px; font-size: 22px; }
+        .modal label { display: block; font-weight: 600; font-size: 14px; margin-top: 12px; color: #2c3e50; }
+        .modal input, .modal select { width: 100%; padding: 12px 14px; border: 2px solid #ddd; border-radius: 12px; font-size: 15px; margin-top: 4px; }
+        .modal .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .modal .btn-submit { width: 100%; padding: 14px; background: #2ecc71; border: none; color: white; font-weight: 700; font-size: 16px; border-radius: 14px; margin-top: 20px; cursor: pointer; }
+        .modal .btn-submit:hover { background: #27ae60; }
+        .modal .btn-close { background: #e74c3c; border: none; color: white; padding: 10px; border-radius: 12px; width: 100%; margin-top: 8px; cursor: pointer; font-weight: 600; }
+        .modal .btn-close:hover { background: #c0392b; }
+        .table-container { background: white; border-radius: 16px; padding: 16px 0 4px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.06); overflow-x: auto; margin-top: 16px; }
+        .table-container h3 { padding: 0 20px 12px 20px; font-size: 18px; color: #2c3e50; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
+        th { background: #f8f9fa; text-align: left; padding: 12px 16px; font-weight: 600; color: #2c3e50; border-bottom: 2px solid #eee; }
+        td { padding: 10px 16px; border-bottom: 1px solid #f0f0f0; }
+        tr:hover td { background: #fafbfc; }
+        .badge-income { background: #d5f5e3; color: #1a7a42; padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 11px; }
+        .badge-expense { background: #fadbd8; color: #922b21; padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 11px; }
+        .loading-text { text-align: center; color: #999; padding: 30px; }
+        @media (max-width: 600px) { .header h1 { font-size: 22px; } .rekap-grid { grid-template-columns: 1fr 1fr; } .unit-summary { grid-template-columns: 1fr; } .modal { padding: 20px 16px; } }
     </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
     <h1>🏨 MAYORA <span>·</span> Penginapan</h1>
     <div class="header-actions">
@@ -294,94 +64,52 @@
     </div>
 </div>
 
-<!-- REKAP -->
-<div class="rekap-grid" id="rekapGrid">
-    <div class="rekap-card">
-        <div class="label">Total Pendapatan Kotor</div>
-        <div class="value" id="totalGross">Rp 0</div>
-    </div>
-    <div class="rekap-card">
-        <div class="label">Total Pengeluaran</div>
-        <div class="value" id="totalExpense">Rp 0</div>
-    </div>
-    <div class="rekap-card">
-        <div class="label">Pendapatan Bersih</div>
-        <div class="value" id="totalNet">Rp 0</div>
-    </div>
-    <div class="rekap-card">
-        <div class="label">Modal Bulanan</div>
-        <div class="value" id="totalModal">Rp 0</div>
-        <div class="sub" id="modalStatus">⏳ Memuat...</div>
-    </div>
+<div class="rekap-grid">
+    <div class="rekap-card"><div class="label">Total Pendapatan Kotor</div><div class="value" id="totalGross">Rp 0</div></div>
+    <div class="rekap-card"><div class="label">Total Pengeluaran</div><div class="value" id="totalExpense">Rp 0</div></div>
+    <div class="rekap-card"><div class="label">Pendapatan Bersih</div><div class="value" id="totalNet">Rp 0</div></div>
+    <div class="rekap-card"><div class="label">Modal Bulanan</div><div class="value" id="totalModal">Rp 0</div><div class="sub" id="modalStatus">⏳ Memuat...</div></div>
 </div>
 
-<!-- UNIT SUMMARY -->
 <div class="unit-summary" id="unitSummary"></div>
 
-<!-- TABEL -->
 <div class="table-container">
     <h3>📋 Riwayat Transaksi</h3>
     <table>
-        <thead>
-            <tr>
-                <th>Unit</th>
-                <th>Tipe</th>
-                <th>Deskripsi / Nama</th>
-                <th>Jumlah</th>
-                <th>Check-in / Tanggal</th>
-                <th>Check-out / Durasi</th>
-            </tr>
-        </thead>
-        <tbody id="transactionTable">
-            <tr><td colspan="6" class="loading-text">⏳ Memuat data...</td></tr>
-        </tbody>
+        <thead><tr><th>Unit</th><th>Tipe</th><th>Deskripsi / Nama</th><th>Jumlah</th><th>Check-in / Tanggal</th><th>Check-out / Durasi</th></tr></thead>
+        <tbody id="transactionTable"><tr><td colspan="6" class="loading-text">⏳ Memuat data...</td></tr></tbody>
     </table>
 </div>
 
-<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
         <h2 id="modalTitle">Tambah Sewa</h2>
         <form id="modalForm" onsubmit="submitForm(event)">
             <input type="hidden" id="formType" value="income" />
-
             <label>Unit</label>
             <select id="fUnit" required>
                 <option value="19">Unit 19</option>
                 <option value="21">Unit 21</option>
                 <option value="29">Unit 29</option>
             </select>
-
             <div id="incomeFields">
                 <label>Nama Penyewa</label>
                 <input type="text" id="fGuest" placeholder="Nama tamu" required />
-
                 <label>Nominal Sewa (contoh: 350 = Rp350.000)</label>
-                <input type="number" id="fAmount" placeholder="Masukkan angka (tanpa titik)" required />
-
+                <input type="number" id="fAmount" placeholder="Masukkan angka" required />
                 <div class="row-2">
-                    <div>
-                        <label>Check-in</label>
-                        <input type="datetime-local" id="fCheckIn" required />
-                    </div>
-                    <div>
-                        <label>Check-out</label>
-                        <input type="datetime-local" id="fCheckOut" required />
-                    </div>
+                    <div><label>Check-in</label><input type="datetime-local" id="fCheckIn" required /></div>
+                    <div><label>Check-out</label><input type="datetime-local" id="fCheckOut" required /></div>
                 </div>
             </div>
-
             <div id="expenseFields" style="display:none;">
                 <label>Deskripsi Pengeluaran</label>
                 <input type="text" id="fDesc" placeholder="Contoh: Beli perlengkapan" required />
-
                 <label>Nominal (contoh: 150 = Rp150.000)</label>
-                <input type="number" id="fExpAmount" placeholder="Masukkan angka (tanpa titik)" required />
-
+                <input type="number" id="fExpAmount" placeholder="Masukkan angka" required />
                 <label>Tanggal</label>
                 <input type="date" id="fExpDate" required />
             </div>
-
             <button type="submit" class="btn-submit">Simpan</button>
             <button type="button" class="btn-close" onclick="closeModal()">Batal</button>
         </form>
@@ -391,130 +119,65 @@
 <script>
 console.log('🚀 Script dimulai...');
 
-// ============================================================
-//  KONFIGURASI SUPABASE
-// ============================================================
 const SUPABASE_URL = 'https://tmxlmimwoysdkrvkpktv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRteGxtaW13b3lzZGtydmtwa3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MDYxODMsImV4cCI6MjEwNDM4MjE4M30.K5x9vadD9VWk4Pm9GvYMxagi1WVepTrF4l_V-Q3-eOQ';
 
-console.log('🔑 URL:', SUPABASE_URL);
-console.log('🔑 Key:', SUPABASE_ANON_KEY.substring(0, 20) + '...');
-
-// Inisialisasi Supabase
 let supabase;
-try {
+
+// CEK SUPABASE SUDAH LOAD
+if (typeof window.supabase !== 'undefined') {
+    console.log('✅ Supabase library ditemukan!');
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log('✅ Supabase client berhasil dibuat');
-} catch (err) {
-    console.error('❌ Gagal buat Supabase client:', err);
-    alert('Error: Gagal konek ke Supabase. Cek koneksi internet!');
+} else {
+    console.error('❌ Supabase library tidak ditemukan!');
+    alert('⚠️ Library Supabase gagal dimuat. Coba refresh atau cek koneksi internet!');
 }
 
-// ============================================================
-//  VARIABEL
-// ============================================================
-const UNIT_MODALS = {
-    '19': 3500000,
-    '21': 3000000,
-    '29': 3600000
-};
-let allTransactions = [];
-let incomeData = [];
-let expenseData = [];
-
-// ============================================================
-//  FUNGSI UTAMA
-// ============================================================
+const UNIT_MODALS = { '19': 3500000, '21': 3000000, '29': 3600000 };
+let allTransactions = [], incomeData = [], expenseData = [];
 
 async function loadData() {
-    console.log('📥 Memuat data...');
-    
     if (!supabase) {
-        alert('❌ Supabase tidak siap. Refresh halaman!');
+        document.getElementById('transactionTable').innerHTML = 
+            '<tr><td colspan="6" style="text-align:center;color:#e74c3c;padding:30px;">❌ Supabase tidak terhubung. Refresh halaman!</td></tr>';
         return;
     }
-    
     try {
-        console.log('📥 Ambil data income...');
         const incomeRes = await supabase.from('income').select('*').order('created_at', { ascending: false });
-        
-        console.log('📥 Ambil data expenses...');
         const expenseRes = await supabase.from('expenses').select('*').order('created_at', { ascending: false });
-
-        if (incomeRes.error) {
-            console.error('❌ Income error:', incomeRes.error);
-            throw new Error('Income: ' + incomeRes.error.message);
-        }
-        if (expenseRes.error) {
-            console.error('❌ Expense error:', expenseRes.error);
-            throw new Error('Expense: ' + expenseRes.error.message);
-        }
-
+        if (incomeRes.error) throw incomeRes.error;
+        if (expenseRes.error) throw expenseRes.error;
         incomeData = incomeRes.data || [];
         expenseData = expenseRes.data || [];
-        console.log('✅ Income:', incomeData.length, 'Expense:', expenseData.length);
-
-        // Gabungkan untuk tabel
         const combined = [];
         incomeData.forEach(i => {
-            combined.push({
-                id: i.id,
-                unit: i.unit_name,
-                type: 'income',
-                guest: i.guest_name,
-                amount: i.amount,
-                checkIn: i.check_in,
-                checkOut: i.check_out,
-                duration: i.duration_hours || 0,
-                desc: 'Sewa ' + i.guest_name,
-                created_at: i.created_at
-            });
+            combined.push({ id: i.id, unit: i.unit_name, type: 'income', guest: i.guest_name, amount: i.amount, 
+                checkIn: i.check_in, checkOut: i.check_out, duration: i.duration_hours || 0, 
+                desc: 'Sewa ' + i.guest_name, created_at: i.created_at });
         });
         expenseData.forEach(e => {
-            combined.push({
-                id: e.id,
-                unit: e.unit_name,
-                type: 'expense',
-                guest: '-',
-                amount: e.amount,
-                checkIn: e.date,
-                checkOut: null,
-                duration: null,
-                desc: e.description,
-                created_at: e.created_at
-            });
+            combined.push({ id: e.id, unit: e.unit_name, type: 'expense', guest: '-', amount: e.amount, 
+                checkIn: e.date, checkOut: null, duration: null, desc: e.description, created_at: e.created_at });
         });
         combined.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
         allTransactions = combined;
         renderAll();
-        console.log('✅ Data selesai dimuat!');
-        
     } catch (err) {
-        console.error('❌ Load data error:', err);
+        console.error(err);
         document.getElementById('transactionTable').innerHTML = 
-            '<tr><td colspan="6" style="text-align:center;color:#e74c3c;padding:30px;">❌ Gagal memuat data: ' + err.message + '</td></tr>';
-        alert('❌ Gagal memuat data: ' + err.message + '\n\nCek koneksi internet dan pastikan Supabase aktif!');
+            '<tr><td colspan="6" style="text-align:center;color:#e74c3c;padding:30px;">❌ Error: ' + err.message + '</td></tr>';
     }
 }
 
 function renderAll() {
-    renderRekap();
-    renderUnitSummary();
-    renderTable();
-}
-
-function renderRekap() {
-    const gross = incomeData.reduce((sum, i) => sum + i.amount, 0);
-    const expenses = expenseData.reduce((sum, e) => sum + e.amount, 0);
+    const gross = incomeData.reduce((s, i) => s + i.amount, 0);
+    const expenses = expenseData.reduce((s, e) => s + e.amount, 0);
     const net = gross - expenses;
-    const totalModal = 3500000 + 3000000 + 3600000;
-
-    document.getElementById('totalGross').textContent = formatRupiah(gross);
-    document.getElementById('totalExpense').textContent = formatRupiah(expenses);
-    document.getElementById('totalNet').textContent = formatRupiah(net);
-    document.getElementById('totalModal').textContent = formatRupiah(totalModal);
-
+    const totalModal = 10100000;
+    document.getElementById('totalGross').textContent = 'Rp ' + gross.toLocaleString('id-ID');
+    document.getElementById('totalExpense').textContent = 'Rp ' + expenses.toLocaleString('id-ID');
+    document.getElementById('totalNet').textContent = 'Rp ' + net.toLocaleString('id-ID');
+    document.getElementById('totalModal').textContent = 'Rp ' + totalModal.toLocaleString('id-ID');
     const netEl = document.getElementById('totalNet');
     const statusEl = document.getElementById('modalStatus');
     if (net > totalModal) {
@@ -524,98 +187,56 @@ function renderRekap() {
         netEl.className = 'value red';
         statusEl.innerHTML = '⚠️ <span style="color:#e74c3c;font-weight:700;">BELUM MELEWATI MODAL</span>';
     }
-}
-
-function renderUnitSummary() {
     const units = ['19', '21', '29'];
     const container = document.getElementById('unitSummary');
     container.innerHTML = '';
-
     units.forEach(unit => {
         const unitIncome = incomeData.filter(i => i.unit_name === unit);
         const unitExpense = expenseData.filter(e => e.unit_name === unit);
         const totalInc = unitIncome.reduce((s, i) => s + i.amount, 0);
         const totalExp = unitExpense.reduce((s, e) => s + e.amount, 0);
-        const net = totalInc - totalExp;
+        const net2 = totalInc - totalExp;
         const modal = UNIT_MODALS[unit];
-
         const card = document.createElement('div');
         card.className = 'unit-card';
-        card.style.borderLeftColor = net > modal ? '#27ae60' : '#e74c3c';
+        card.style.borderLeftColor = net2 > modal ? '#27ae60' : '#e74c3c';
         card.innerHTML = 
             '<div class="unit-name">Unit ' + unit + '</div>' +
-            '<div class="unit-detail">Pendapatan: ' + formatRupiah(totalInc) + '</div>' +
-            '<div class="unit-detail">Pengeluaran: ' + formatRupiah(totalExp) + '</div>' +
-            '<div class="unit-detail">Bersih: ' + formatRupiah(net) + '</div>' +
-            '<div class="unit-status" style="color:' + (net > modal ? '#27ae60' : '#e74c3c') + ';">' +
-            (net > modal ? '✅ Melewati modal' : '❌ Belum melewati modal') +
-            ' (Modal: ' + formatRupiah(modal) + ')</div>';
+            '<div class="unit-detail">Pendapatan: Rp ' + totalInc.toLocaleString('id-ID') + '</div>' +
+            '<div class="unit-detail">Pengeluaran: Rp ' + totalExp.toLocaleString('id-ID') + '</div>' +
+            '<div class="unit-detail">Bersih: Rp ' + net2.toLocaleString('id-ID') + '</div>' +
+            '<div class="unit-status" style="color:' + (net2 > modal ? '#27ae60' : '#e74c3c') + ';">' +
+            (net2 > modal ? '✅ Melewati modal' : '❌ Belum melewati modal') +
+            ' (Modal: Rp ' + modal.toLocaleString('id-ID') + ')</div>';
         container.appendChild(card);
     });
-}
-
-function renderTable() {
     const tbody = document.getElementById('transactionTable');
     if (allTransactions.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada transaksi</td></tr>';
         return;
     }
-
     let html = '';
     allTransactions.forEach(t => {
         const isIncome = t.type === 'income';
         const badge = isIncome ? 'badge-income' : 'badge-expense';
         const label = isIncome ? 'Pemasukan' : 'Pengeluaran';
-
-        let dateInfo = '';
-        if (isIncome) {
-            const cIn = new Date(t.checkIn).toLocaleString('id-ID');
-            const cOut = new Date(t.checkOut).toLocaleString('id-ID');
-            dateInfo = cIn + ' → ' + cOut;
-        } else {
-            dateInfo = new Date(t.checkIn).toLocaleDateString('id-ID');
-        }
-
-        let durasi = '';
-        if (isIncome) {
-            durasi = t.duration ? t.duration + ' jam' : '-';
-        } else {
-            durasi = '-';
-        }
-
-        html += 
-            '<tr>' +
-            '<td><strong>' + t.unit + '</strong></td>' +
-            '<td><span class="' + badge + '">' + label + '</span></td>' +
-            '<td>' + (t.desc || t.guest) + '</td>' +
-            '<td>' + formatRupiah(t.amount) + '</td>' +
-            '<td>' + (isIncome ? new Date(t.checkIn).toLocaleString('id-ID') : new Date(t.checkIn).toLocaleDateString('id-ID')) + '</td>' +
-            '<td>' + durasi + '</td>' +
-            '</tr>';
+        let dateInfo = isIncome ? new Date(t.checkIn).toLocaleString('id-ID') + ' → ' + new Date(t.checkOut).toLocaleString('id-ID') : new Date(t.checkIn).toLocaleDateString('id-ID');
+        let durasi = isIncome ? (t.duration ? t.duration + ' jam' : '-') : '-';
+        html += '<tr><td><strong>' + t.unit + '</strong></td><td><span class="' + badge + '">' + label + '</span></td><td>' + (t.desc || t.guest) + '</td><td>Rp ' + t.amount.toLocaleString('id-ID') + '</td><td>' + dateInfo + '</td><td>' + durasi + '</td></tr>';
     });
     tbody.innerHTML = html;
 }
 
-function formatRupiah(num) {
-    return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-
-// ============================================================
-//  MODAL
-// ============================================================
 function openModal(type) {
-    console.log('📂 Open modal:', type);
     document.getElementById('modalOverlay').classList.add('active');
     document.getElementById('formType').value = type;
-
     if (type === 'income') {
         document.getElementById('modalTitle').textContent = '➕ Tambah Sewa';
         document.getElementById('incomeFields').style.display = 'block';
         document.getElementById('expenseFields').style.display = 'none';
         const now = new Date();
         document.getElementById('fCheckIn').value = now.toISOString().slice(0, 16);
-        const out = new Date(now.getTime() + 3600000);
-        document.getElementById('fCheckOut').value = out.toISOString().slice(0, 16);
+        document.getElementById('fCheckOut').value = new Date(now.getTime() + 3600000).toISOString().slice(0, 16);
         document.getElementById('fAmount').value = '';
         document.getElementById('fGuest').value = '';
     } else {
@@ -632,131 +253,60 @@ function closeModal() {
     document.getElementById('modalOverlay').classList.remove('active');
 }
 
-// ============================================================
-//  SUBMIT
-// ============================================================
 async function submitForm(e) {
     e.preventDefault();
-    console.log('📤 Submit form...');
-    
     const type = document.getElementById('formType').value;
     const unit = document.getElementById('fUnit').value;
-
     try {
         if (type === 'income') {
             const guest = document.getElementById('fGuest').value.trim();
-            const amountRaw = document.getElementById('fAmount').value;
-            const amount = parseInt(amountRaw) * 1000;
+            const amount = parseInt(document.getElementById('fAmount').value) * 1000;
             const checkIn = document.getElementById('fCheckIn').value;
             const checkOut = document.getElementById('fCheckOut').value;
-
-            if (!guest || !amountRaw || !checkIn || !checkOut) {
-                alert('Semua field harus diisi!');
-                return;
-            }
-            if (amount <= 0) {
-                alert('Nominal harus lebih dari 0!');
-                return;
-            }
-
+            if (!guest || !amount || !checkIn || !checkOut) { alert('Semua field harus diisi!'); return; }
             const durasi = Math.round((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60));
-            if (durasi <= 0) {
-                alert('Check-out harus setelah check-in!');
-                return;
-            }
-
-            console.log('📤 Insert income:', { unit, guest, amount, checkIn, checkOut, durasi });
-            
-            const { error } = await supabase.from('income').insert({
-                unit_name: unit,
-                guest_name: guest,
-                amount: amount,
-                check_in: checkIn,
-                check_out: checkOut,
-                duration_hours: durasi
-            });
-
+            if (durasi <= 0) { alert('Check-out harus setelah check-in!'); return; }
+            const { error } = await supabase.from('income').insert({ unit_name: unit, guest_name: guest, amount, check_in: checkIn, check_out: checkOut, duration_hours: durasi });
             if (error) throw error;
             alert('✅ Sewa berhasil ditambahkan!');
-
         } else {
             const desc = document.getElementById('fDesc').value.trim();
-            const amountRaw = document.getElementById('fExpAmount').value;
-            const amount = parseInt(amountRaw) * 1000;
+            const amount = parseInt(document.getElementById('fExpAmount').value) * 1000;
             const date = document.getElementById('fExpDate').value;
-
-            if (!desc || !amountRaw || !date) {
-                alert('Semua field harus diisi!');
-                return;
-            }
-            if (amount <= 0) {
-                alert('Nominal harus lebih dari 0!');
-                return;
-            }
-
-            console.log('📤 Insert expense:', { unit, desc, amount, date });
-            
-            const { error } = await supabase.from('expenses').insert({
-                unit_name: unit,
-                description: desc,
-                amount: amount,
-                date: date
-            });
-
+            if (!desc || !amount || !date) { alert('Semua field harus diisi!'); return; }
+            const { error } = await supabase.from('expenses').insert({ unit_name: unit, description: desc, amount, date });
             if (error) throw error;
             alert('✅ Pengeluaran berhasil ditambahkan!');
         }
-
         closeModal();
         loadData();
     } catch (err) {
-        console.error('❌ Submit error:', err);
         alert('❌ Gagal menyimpan: ' + err.message);
     }
 }
 
-// ============================================================
-//  RESET
-// ============================================================
 async function resetAll() {
-    console.log('🔄 Reset data...');
-    if (!confirm('⚠️ Yakin mau menghapus SEMUA data? Ini tidak bisa dibatalkan!')) return;
-    if (!confirm('Benar-benar yakin? Semua transaksi akan hilang!')) return;
-
+    if (!confirm('⚠️ Yakin mau menghapus SEMUA data?')) return;
+    if (!confirm('Benar-benar yakin?')) return;
     try {
-        const { error: err1 } = await supabase.from('income').delete().neq('id', 0);
-        if (err1) throw err1;
-        const { error: err2 } = await supabase.from('expenses').delete().neq('id', 0);
-        if (err2) throw err2;
-
+        await supabase.from('income').delete().neq('id', 0);
+        await supabase.from('expenses').delete().neq('id', 0);
         alert('✅ Semua data berhasil direset!');
         loadData();
     } catch (err) {
-        console.error('❌ Reset error:', err);
         alert('❌ Gagal reset: ' + err.message);
     }
 }
 
-// ============================================================
-//  JALANKAN - PASTIKAN SEMUA FUNGSI TERDEFINISI
-// ============================================================
-console.log('📋 Mengecek fungsi...');
-console.log('✅ openModal:', typeof openModal === 'function');
-console.log('✅ submitForm:', typeof submitForm === 'function');
-console.log('✅ resetAll:', typeof resetAll === 'function');
-console.log('✅ loadData:', typeof loadData === 'function');
-
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM siap, memuat data...');
     loadData();
 });
 
-// Tutup modal jika klik di luar
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
 });
 
-console.log('✅ Script selesai di-load!');
+console.log('✅ Script selesai!');
 </script>
 </body>
 </html>
