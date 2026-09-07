@@ -400,7 +400,7 @@
 
 <script>
 // ============================================================
-//  KONFIGURASI SUPABASE - SUDAH DIISI!
+//  KONFIGURASI SUPABASE
 // ============================================================
 const SUPABASE_URL = 'https://tmxlmimwoysdkrvkpktv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRteGxtaW13b3lzZGtydmtwa3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MDYxODMsImV4cCI6MjEwNDM4MjE4M30.K5x9vadD9VWk4Pm9GvYMxagi1WVepTrF4l_V-Q3-eOQ';
@@ -430,8 +430,14 @@ async function loadData() {
             supabase.from('expenses').select('*').order('created_at', { ascending: false })
         ]);
 
-        if (incomeRes.error) throw incomeRes.error;
-        if (expenseRes.error) throw expenseRes.error;
+        if (incomeRes.error) {
+            console.error('Income error:', incomeRes.error);
+            throw incomeRes.error;
+        }
+        if (expenseRes.error) {
+            console.error('Expense error:', expenseRes.error);
+            throw expenseRes.error;
+        }
 
         incomeData = incomeRes.data || [];
         expenseData = expenseRes.data || [];
@@ -448,7 +454,7 @@ async function loadData() {
                 checkIn: i.check_in,
                 checkOut: i.check_out,
                 duration: i.duration_hours || 0,
-                desc: `Sewa ${i.guest_name}`,
+                desc: 'Sewa ' + i.guest_name,
                 created_at: i.created_at
             });
         });
@@ -471,8 +477,9 @@ async function loadData() {
         allTransactions = combined;
         renderAll();
     } catch (err) {
-        alert('❌ Gagal memuat data: ' + err.message);
-        console.error(err);
+        console.error('Load data error:', err);
+        document.getElementById('transactionTable').innerHTML = 
+            '<tr><td colspan="6" style="text-align:center;color:#e74c3c;padding:30px;">❌ Gagal memuat data: ' + err.message + '</td></tr>';
     }
 }
 
@@ -520,16 +527,14 @@ function renderUnitSummary() {
         const card = document.createElement('div');
         card.className = 'unit-card';
         card.style.borderLeftColor = net > modal ? '#27ae60' : '#e74c3c';
-        card.innerHTML = `
-            <div class="unit-name">Unit ${unit}</div>
-            <div class="unit-detail">Pendapatan: ${formatRupiah(totalInc)}</div>
-            <div class="unit-detail">Pengeluaran: ${formatRupiah(totalExp)}</div>
-            <div class="unit-detail">Bersih: ${formatRupiah(net)}</div>
-            <div class="unit-status" style="color:${net > modal ? '#27ae60' : '#e74c3c'};">
-                ${net > modal ? '✅ Melewati modal' : '❌ Belum melewati modal'}
-                (Modal: ${formatRupiah(modal)})
-            </div>
-        `;
+        card.innerHTML = 
+            '<div class="unit-name">Unit ' + unit + '</div>' +
+            '<div class="unit-detail">Pendapatan: ' + formatRupiah(totalInc) + '</div>' +
+            '<div class="unit-detail">Pengeluaran: ' + formatRupiah(totalExp) + '</div>' +
+            '<div class="unit-detail">Bersih: ' + formatRupiah(net) + '</div>' +
+            '<div class="unit-status" style="color:' + (net > modal ? '#27ae60' : '#e74c3c') + ';">' +
+            (net > modal ? '✅ Melewati modal' : '❌ Belum melewati modal') +
+            ' (Modal: ' + formatRupiah(modal) + ')</div>';
         container.appendChild(card);
     });
 }
@@ -537,7 +542,7 @@ function renderUnitSummary() {
 function renderTable() {
     const tbody = document.getElementById('transactionTable');
     if (allTransactions.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada transaksi</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada transaksi</td></tr>';
         return;
     }
 
@@ -551,7 +556,7 @@ function renderTable() {
         if (isIncome) {
             const cIn = new Date(t.checkIn).toLocaleString('id-ID');
             const cOut = new Date(t.checkOut).toLocaleString('id-ID');
-            dateInfo = `${cIn} → ${cOut}`;
+            dateInfo = cIn + ' → ' + cOut;
         } else {
             dateInfo = new Date(t.checkIn).toLocaleDateString('id-ID');
         }
@@ -563,16 +568,15 @@ function renderTable() {
             durasi = '-';
         }
 
-        html += `
-            <tr>
-                <td><strong>${t.unit}</strong></td>
-                <td><span class="${badge}">${label}</span></td>
-                <td>${t.desc || t.guest}</td>
-                <td>${formatRupiah(t.amount)}</td>
-                <td>${isIncome ? new Date(t.checkIn).toLocaleString('id-ID') : new Date(t.checkIn).toLocaleDateString('id-ID')}</td>
-                <td>${durasi}</td>
-            </tr>
-        `;
+        html += 
+            '<tr>' +
+            '<td><strong>' + t.unit + '</strong></td>' +
+            '<td><span class="' + badge + '">' + label + '</span></td>' +
+            '<td>' + (t.desc || t.guest) + '</td>' +
+            '<td>' + formatRupiah(t.amount) + '</td>' +
+            '<td>' + (isIncome ? new Date(t.checkIn).toLocaleString('id-ID') : new Date(t.checkIn).toLocaleDateString('id-ID')) + '</td>' +
+            '<td>' + durasi + '</td>' +
+            '</tr>';
     });
     tbody.innerHTML = html;
 }
@@ -713,7 +717,9 @@ async function resetAll() {
 // ============================================================
 //  JALANKAN
 // ============================================================
-loadData();
+document.addEventListener('DOMContentLoaded', function() {
+    loadData();
+});
 
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
